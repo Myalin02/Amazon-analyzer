@@ -16,7 +16,7 @@ if not st.session_state.logged_in:
     password = st.text_input("Bitte Passwort eingeben:", type="password")
     if password == "sonnenaufgang":  # <-- Hier das echte Passwort eintragen
         st.session_state.logged_in = True
-        st.experimental_rerun()
+        st.rerun()
     elif password:
         st.error("❌ Falsches Passwort!")
     st.stop()
