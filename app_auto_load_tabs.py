@@ -36,7 +36,7 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     st.subheader("🔐 Zugriff geschützt")
     password = st.text_input("Bitte Passwort eingeben:", type="password")
-    if password == "meinPasswort123":  # <-- Hier das echte Passwort eintragen
+    if password == "sonnenaufgang":  # <-- Hier das echte Passwort eintragen
         st.session_state.logged_in = True
         st.rerun()
     elif password:
