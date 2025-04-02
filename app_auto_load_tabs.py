@@ -7,6 +7,28 @@ import re
 
 st.set_page_config(page_title="Amazon Analyzer", layout="wide")
 
+with st.sidebar:
+    st.markdown("## 📤 Daten hochladen")
+
+    uploaded_business = st.file_uploader("📊 Business Report (.csv)", type="csv")
+    if uploaded_business:
+        with open("data/business_reports/" + uploaded_business.name, "wb") as f:
+            f.write(uploaded_business.getbuffer())
+        st.success(f"✅ Business Report gespeichert: {uploaded_business.name}")
+
+    uploaded_campaign = st.file_uploader("📈 Kampagnenbericht (.csv)", type="csv")
+    if uploaded_campaign:
+        with open("data/campaigns/" + uploaded_campaign.name, "wb") as f:
+            f.write(uploaded_campaign.getbuffer())
+        st.success(f"✅ Kampagnenbericht gespeichert: {uploaded_campaign.name}")
+
+    uploaded_keywords = st.file_uploader("🔍 Suchbegriffe (.xlsx)", type="xlsx")
+    if uploaded_keywords:
+        with open("data/search_terms/" + uploaded_keywords.name, "wb") as f:
+            f.write(uploaded_keywords.getbuffer())
+        st.success(f"✅ Suchbegriffe gespeichert: {uploaded_keywords.name}")
+
+
 # === Login-Schutz ===
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -14,7 +36,7 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     st.subheader("🔐 Zugriff geschützt")
     password = st.text_input("Bitte Passwort eingeben:", type="password")
-    if password == "sonnenaufgang":  # <-- Hier das echte Passwort eintragen
+    if password == "meinPasswort123":  # <-- Hier das echte Passwort eintragen
         st.session_state.logged_in = True
         st.rerun()
     elif password:
