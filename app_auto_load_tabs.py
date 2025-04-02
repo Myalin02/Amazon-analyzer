@@ -6,6 +6,22 @@ import os
 import re
 
 st.set_page_config(page_title="Amazon Analyzer", layout="wide")
+
+# === Login-Schutz ===
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.subheader("🔐 Zugriff geschützt")
+    password = st.text_input("Bitte Passwort eingeben:", type="password")
+    if password == "meinPasswort123":  # <-- Hier das echte Passwort eintragen
+        st.session_state.logged_in = True
+        st.experimental_rerun()
+    elif password:
+        st.error("❌ Falsches Passwort!")
+    st.stop()
+
+
 st.title("📊 AmazonAnalyzer Dashboard")
 
 def extract_asin(text):
