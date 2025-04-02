@@ -4,12 +4,10 @@ import pandas as pd
 import plotly.express as px
 import os
 import re
-import subprocess
 
 st.set_page_config(page_title="Amazon Analyzer", layout="wide")
 st.title("📊 AmazonAnalyzer Dashboard")
 
-# === Hilfsfunktionen ===
 def extract_asin(text):
     matches = re.findall(r"\b[A-Z0-9]{10}\b", str(text))
     return matches[0] if matches else None
@@ -112,14 +110,12 @@ else:
         ), axis=1)
         return df
 
-    # Verarbeitung
     df_business_processed = process_business(df_business)
-    df_campaigns_processed = process_campaigns(df_campaign_path)
+    df_campaigns_processed = process_campaigns(df_campaigns)
     df_keywords_processed = process_keywords(df_keywords)
     df_asins_processed = process_asins(df_business_processed)
     df_combined = pd.merge(df_business_processed, df_campaigns_processed, on="ASIN", how="outer")
 
-    # Tabs anzeigen
     with tab1:
         st.subheader("📊 Kampagnen + Produktanalyse")
         st.dataframe(df_combined)
