@@ -249,3 +249,34 @@ else:
 
         df_seo = pd.DataFrame(result)
         st.dataframe(df_seo)
+
+
+
+    # === 🟪 Tab: Katalog-Übersicht ===
+    catalog_tab = st.tabs(["🗂️ Katalog-Übersicht"])[0]
+
+    with catalog_tab:
+        st.subheader("🗂️ Gesamtübersicht aller Amazon-Produkte")
+
+        # Kombinieren: Business + Kampagnenberichte (falls nicht schon kombiniert)
+        df_catalog = df_business.merge(df_campaigns[["ASIN", "Kampagnenname"]], on="ASIN", how="left")
+        df_catalog["Werbung aktiv"] = df_catalog["Kampagnenname"].notnull().map({True: "✅ Ja", False: "❌ Nein"})
+
+        # Bewertung basierend auf Umsatz + CR
+        def bewertung(row):
+            if row["Umsatz (organisch)"] == 0:
+                return "🟥 Kein Verkauf"
+            elif row["CR (%)"] >= 10:
+                return "🟢 Hochperformer"
+            elif row["CR (%)"] < 5:
+                return "🟡 Optimieren"
+            else:
+                return "⚪ Mittel"
+
+        df_catalog["Status"] = df_catalog.apply(bewertung, axis=1)
+
+        # Zeige Tabelle
+        st.dataframe(df_catalog[[
+            "ASIN", "Produktname", "Sessions", "CR (%)", "Umsatz (organisch)",
+            "Werbung aktiv", "Status"
+        ]])
