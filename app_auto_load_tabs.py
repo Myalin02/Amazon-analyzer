@@ -228,7 +228,7 @@ else:
         st.subheader("🗂️ Gesamtübersicht aller Amazon-Produkte")
 
         # Kombinieren: Business + Kampagnenberichte (falls nicht schon kombiniert)
-        df_catalog = df_business.merge(df_campaigns[["ASIN", "Kampagnen-Name"]], on="ASIN", how="left")
+        df_catalog = df_business.merge(df_promoted_products[["ASIN", "Kampagnen-Name"]], on="ASIN", how="left")
         df_catalog["Werbung aktiv"] = df_catalog["Kampagnen-Name"].notnull().map({True: "✅ Ja", False: "❌ Nein"})
 
         # Bewertung basierend auf Umsatz + CR
