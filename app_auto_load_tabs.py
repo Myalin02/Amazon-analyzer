@@ -220,66 +220,6 @@ else:
 
 
 
-    # === 🟪 Tab: Katalog-Übersicht ===
-    catalog_tab = st.tabs(["🗂️ Katalog-Übersicht"])[0]
-
-    with catalog_tab:
-        st.subheader("🗂️ Gesamtübersicht aller Amazon-Produkte")
-
-        # Kombinieren: Business + Kampagnenberichte (falls nicht schon kombiniert)
-        df_catalog = df_business.merge(df_campaigns[["ASIN", "Kampagnenname"]], on="ASIN", how="left")
-        df_catalog["Werbung aktiv"] = df_catalog["Kampagnenname"].notnull().map({True: "✅ Ja", False: "❌ Nein"})
-
-        # Bewertung basierend auf Umsatz + CR
-        def bewertung(row):
-            if row["Umsatz (organisch)"] == 0:
-                return "🟥 Kein Verkauf"
-            elif row["CR (%)"] >= 10:
-                return "🟢 Hochperformer"
-            elif row["CR (%)"] < 5:
-                return "🟡 Optimieren"
-            else:
-                return "⚪ Mittel"
-
-        df_catalog["Status"] = df_catalog.apply(bewertung, axis=1)
-
-        # Zeige Tabelle
-        filtered = apply_filters(df_catalog, "Katalog")
-        st.dataframe(filtered[[
-            "ASIN", "Produktname", "Sessions", "CR (%)", "Umsatz (organisch)",
-            "Werbung aktiv", "Status"
-        ]])
-
-
-
-def apply_filters(df, tab_name):
-    st.markdown(f"### 🔎 Filter ({tab_name})")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        filter_col = st.selectbox("Spalte auswählen", df.columns)
-    with col2:
-        filter_op = st.selectbox("Operator", ["enthält", "gleich", "größer als", "kleiner als"])
-    with col3:
-        filter_val = st.text_input("Wert eingeben")
-
-    if filter_val:
-        try:
-            if filter_op == "enthält":
-                df = df[df[filter_col].astype(str).str.contains(filter_val, case=False, na=False)]
-            elif filter_op == "gleich":
-                df = df[df[filter_col] == type(df[filter_col].iloc[0])(filter_val)]
-            elif filter_op == "größer als":
-                df = df[pd.to_numeric(df[filter_col], errors="coerce") > float(filter_val)]
-            elif filter_op == "kleiner als":
-                df = df[pd.to_numeric(df[filter_col], errors="coerce") < float(filter_val)]
-        except Exception as e:
-            st.warning(f"Filter konnte nicht angewendet werden: {e}")
-    return df
-
-
-
     # === 🟪 Tab: SEO-Check – Keyword-Coverage mit Sicherheitsprüfung ===
     seo_tab = st.tabs(["🔎 SEO-Check"])[0]
 
