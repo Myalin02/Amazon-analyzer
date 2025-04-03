@@ -201,3 +201,19 @@ else:
             st.dataframe(df_margin[["ASIN", "Umsatz (€)", "Einkaufspreis", "Netto-Marge (€)", "ACOS (%)", "Break-Even-ACOS (%)", "Rentabilität"]])
         else:
             st.info("Bitte CSV mit ASIN & Einkaufspreis hochladen.")
+
+
+
+    # === 🟪 Tab: Top & Flop Produkte ===
+    topflop_tab = st.tabs(["🏆 Top & Flop Produkte"])[0]
+
+    with topflop_tab:
+        st.subheader("🏆 Top 10 Bestseller")
+        df_top10 = df_combined.sort_values("Umsatz (€)", ascending=False).head(10)
+        st.dataframe(df_top10[["ASIN", "Kampagnenname", "Umsatz (€)", "ACOS (%)", "ROAS"]])
+
+        st.subheader("⚠️ Flop 10 Produkte (hoher ACOS oder niedriger Umsatz)")
+        df_flop = df_combined[
+            (df_combined["ACOS (%)"] > 50) | (df_combined["Umsatz (€)"] < 20)
+        ].sort_values(["ACOS (%)", "Umsatz (€)"], ascending=[False, True]).head(10)
+        st.dataframe(df_flop[["ASIN", "Kampagnenname", "Umsatz (€)", "ACOS (%)", "ROAS"]])
