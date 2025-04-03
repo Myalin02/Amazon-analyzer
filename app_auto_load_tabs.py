@@ -1,3 +1,4 @@
+
 import pandas as pd
 import streamlit as st
 import pandas as pd
@@ -78,20 +79,20 @@ else:
     def process_campaigns(df):
         df = df.rename(columns={
             "Klickrate (CTR)": "CTR",
-            "Zugeschriebene Umsatzkosten (ACOS) gesamt ": "ACOS",
+            "Zugeschriebene Umsatzkosten (ACOS) gesamt ": "Zugeschriebene Umsatzkosten (ACOS) gesamt ",
             "Gesamte Rentabilität der Anzeigenkosten (ROAS)": "ROAS",
             "Ausgaben": "Spend",
             "7 Tage, Umsatz gesamt (€)": "Umsatz",
-            "Kampagnen-Name": "Kampagnenname"
+            "Kampagnen-Name": "Kampagnen-Name"
         })
-        df["ACOS (%)"] = df["ACOS"].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
+        df["Zugeschriebene Umsatzkosten (ACOS) gesamt "] = df["Zugeschriebene Umsatzkosten (ACOS) gesamt "].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
         df["ROAS"] = df["ROAS"].astype(str).str.replace(",", ".").astype(float)
         df["Spend (€)"] = df["Spend"].astype(str).str.replace("€", "").str.replace(",", ".").astype(float)
         df["Umsatz (€)"] = df["Umsatz"].astype(str).str.replace("€", "").str.replace(",", ".").astype(float)
-        df["ASIN"] = df["Kampagnenname"].apply(extract_asin)
+        df["ASIN"] = df["Kampagnen-Name"].apply(extract_asin)
         df["Ad_Bewertung"] = df.apply(lambda row: (
-            "🔴 Schwach" if row["ACOS (%)"] > 40 and row["ROAS"] < 2 else
-            "🟢 Top" if row["ACOS (%)"] < 20 and row["ROAS"] > 5 else
+            "🔴 Schwach" if row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] > 40 and row["ROAS"] < 2 else
+            "🟢 Top" if row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] < 20 and row["ROAS"] > 5 else
             "🟡 Neutral"
         ), axis=1)
         return df
@@ -130,20 +131,20 @@ else:
             "Impressionen": "Impressionen",
             "Kosten pro Klick (CPC)": "CPC",
             "Klickrate (CTR)": "CTR",
-            "Zugeschriebene Umsatzkosten (ACOS) gesamt ": "ACOS",
+            "Zugeschriebene Umsatzkosten (ACOS) gesamt ": "Zugeschriebene Umsatzkosten (ACOS) gesamt ",
             "Gesamte Rentabilität der Anzeigenkosten (ROAS)": "ROAS",
             "7 Tage, Umsatz gesamt (€)": "Umsatz",
             "7-Tage-Konversionsrate": "CR"
         })
-        df["ACOS"] = df["ACOS"].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
+        df["Zugeschriebene Umsatzkosten (ACOS) gesamt "] = df["Zugeschriebene Umsatzkosten (ACOS) gesamt "].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
         df["ROAS"] = df["ROAS"].astype(str).str.replace(",", ".").astype(float)
         df["Umsatz"] = df["Umsatz"].astype(str).str.replace("€", "").str.replace(",", ".").astype(float)
         df["CR"] = df["CR"].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
         df["CTR"] = df["CTR"].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
         df["Empfehlung"] = df.apply(lambda row: (
-            "🟢 Skalieren" if row["ACOS"] < 20 and row["ROAS"] > 4 else
-            "🔴 Negativ setzen" if row["ACOS"] > 60 or row["CR"] < 3 else
-            "🟡 Optimieren" if 20 <= row["ACOS"] <= 40 or 5 <= row["CR"] <= 10 else
+            "🟢 Skalieren" if row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] < 20 and row["ROAS"] > 4 else
+            "🔴 Negativ setzen" if row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] > 60 or row["CR"] < 3 else
+            "🟡 Optimieren" if 20 <= row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] <= 40 or 5 <= row["CR"] <= 10 else
             "🟠 Beobachten"
         ), axis=1)
         return df
@@ -186,19 +187,19 @@ else:
             df_margin["Amazon Gebühren (€)"] = df_margin["Umsatz (€)"] * 0.15 + 2
             df_margin["Netto-Marge (€)"] = df_margin["Umsatz (€)"] - df_margin["Amazon Gebühren (€)"] - df_margin["Einkaufspreis"]
             df_margin["Break-Even-ACOS (%)"] = (df_margin["Netto-Marge (€)"] / df_margin["Umsatz (€)"]) * 100
-            df_margin["ACOS (%)"] = df_margin["ACOS (%)"].fillna(0)
+            df_margin["Zugeschriebene Umsatzkosten (ACOS) gesamt "] = df_margin["Zugeschriebene Umsatzkosten (ACOS) gesamt "].fillna(0)
 
             def bewertung(row):
                 if pd.isna(row["Einkaufspreis"]):
                     return "⚠️ Kein EK hinterlegt"
-                if row["ACOS (%)"] > row["Break-Even-ACOS (%)"]:
+                if row["Zugeschriebene Umsatzkosten (ACOS) gesamt "] > row["Break-Even-ACOS (%)"]:
                     return "🔴 Unprofitabel"
                 else:
                     return "🟢 OK"
 
             df_margin["Rentabilität"] = df_margin.apply(bewertung, axis=1)
 
-            st.dataframe(df_margin[["ASIN", "Umsatz (€)", "Einkaufspreis", "Netto-Marge (€)", "ACOS (%)", "Break-Even-ACOS (%)", "Rentabilität"]])
+            st.dataframe(df_margin[["ASIN", "Umsatz (€)", "Einkaufspreis", "Netto-Marge (€)", "Zugeschriebene Umsatzkosten (ACOS) gesamt ", "Break-Even-ACOS (%)", "Rentabilität"]])
         else:
             st.info("Bitte CSV mit ASIN & Einkaufspreis hochladen.")
 
@@ -210,13 +211,73 @@ else:
     with topflop_tab:
         st.subheader("🏆 Top 10 Bestseller")
         df_top10 = df_combined.sort_values("Umsatz (€)", ascending=False).head(10)
-        st.dataframe(df_top10[["ASIN", "Kampagnenname", "Umsatz (€)", "ACOS (%)", "ROAS"]])
+        st.dataframe(df_top10[["ASIN", "Kampagnen-Name", "Umsatz (€)", "Zugeschriebene Umsatzkosten (ACOS) gesamt ", "ROAS"]])
 
         st.subheader("⚠️ Flop 10 Produkte (hoher ACOS oder niedriger Umsatz)")
         df_flop = df_combined[
-            (df_combined["ACOS (%)"] > 50) | (df_combined["Umsatz (€)"] < 20)
-        ].sort_values(["ACOS (%)", "Umsatz (€)"], ascending=[False, True]).head(10)
-        st.dataframe(df_flop[["ASIN", "Kampagnenname", "Umsatz (€)", "ACOS (%)", "ROAS"]])
+            (df_combined["Zugeschriebene Umsatzkosten (ACOS) gesamt "] > 50) | (df_combined["Umsatz (€)"] < 20)
+        ].sort_values(["Zugeschriebene Umsatzkosten (ACOS) gesamt ", "Umsatz (€)"], ascending=[False, True]).head(10)
+        st.dataframe(df_flop[["ASIN", "Kampagnen-Name", "Umsatz (€)", "Zugeschriebene Umsatzkosten (ACOS) gesamt ", "ROAS"]])
+
+
+
+    # === 🟪 Tab: Katalog-Übersicht ===
+    catalog_tab = st.tabs(["🗂️ Katalog-Übersicht"])[0]
+
+    with catalog_tab:
+        st.subheader("🗂️ Gesamtübersicht aller Amazon-Produkte")
+
+        # Kombinieren: Business + Kampagnenberichte (falls nicht schon kombiniert)
+        df_catalog = df_business.merge(df_campaigns[["ASIN", "Kampagnen-Name"]], on="ASIN", how="left")
+        df_catalog["Werbung aktiv"] = df_catalog["Kampagnen-Name"].notnull().map({True: "✅ Ja", False: "❌ Nein"})
+
+        # Bewertung basierend auf Umsatz + CR
+        def bewertung(row):
+            if row["Umsatz (organisch)"] == 0:
+                return "🟥 Kein Verkauf"
+            elif row["CR (%)"] >= 10:
+                return "🟢 Hochperformer"
+            elif row["CR (%)"] < 5:
+                return "🟡 Optimieren"
+            else:
+                return "⚪ Mittel"
+
+        df_catalog["Status"] = df_catalog.apply(bewertung, axis=1)
+
+        # Zeige Tabelle
+        filtered = apply_filters(df_catalog, "Katalog")
+        st.dataframe(filtered[[
+            "ASIN", "Produktname", "Sessions", "CR (%)", "Umsatz (organisch)",
+            "Werbung aktiv", "Status"
+        ]])
+
+
+
+def apply_filters(df, tab_name):
+    st.markdown(f"### 🔎 Filter ({tab_name})")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        filter_col = st.selectbox("Spalte auswählen", df.columns)
+    with col2:
+        filter_op = st.selectbox("Operator", ["enthält", "gleich", "größer als", "kleiner als"])
+    with col3:
+        filter_val = st.text_input("Wert eingeben")
+
+    if filter_val:
+        try:
+            if filter_op == "enthält":
+                df = df[df[filter_col].astype(str).str.contains(filter_val, case=False, na=False)]
+            elif filter_op == "gleich":
+                df = df[df[filter_col] == type(df[filter_col].iloc[0])(filter_val)]
+            elif filter_op == "größer als":
+                df = df[pd.to_numeric(df[filter_col], errors="coerce") > float(filter_val)]
+            elif filter_op == "kleiner als":
+                df = df[pd.to_numeric(df[filter_col], errors="coerce") < float(filter_val)]
+        except Exception as e:
+            st.warning(f"Filter konnte nicht angewendet werden: {e}")
+    return df
 
 
 
@@ -231,7 +292,7 @@ else:
                 st.warning(f"❗ Die Spalte 'Keyword' wurde im Suchbegriff-Bericht nicht gefunden. Verfügbare Spalten: {list(df_keywords_processed.columns)}")
             else:
                 keywords = df_keywords_processed["Keyword"].dropna().unique()
-                kampagnen_content = df_campaigns["Kampagnenname"].astype(str).str.lower().str.cat(sep=" ")
+                kampagnen_content = df_campaigns["Kampagnen-Name"].astype(str).str.lower().str.cat(sep=" ")
                 listing_content = df_business["Produktname"].astype(str).str.lower().str.cat(sep=" ")
 
                 result = []
@@ -256,53 +317,3 @@ else:
 
         except Exception as e:
             st.error(f"Fehler beim Verarbeiten der SEO-Analyse: {e}")
-
-
-# === 🟪 Tab: Katalog – Produkte & Werbung (ASIN) ===
-ads_tab = st.tabs(["📦 Werbe-ASINs Übersicht"])[0]
-
-with ads_tab:
-    st.subheader("📦 Übersicht aller ASINs mit organischer & beworbener Performance")
-
-    try:
-        business_df = pd.read_csv("data/business_reports/BusinessReport.csv", sep=";", encoding="utf-8")
-        campaign_df = pd.read_csv("data/campaigns/Sponsored_Products_Beworbenes_Produkt_Bericht.CSV", sep=None, engine="python")
-
-        business_df.columns = business_df.columns.str.strip()
-        campaign_df.columns = campaign_df.columns.str.strip()
-
-        campaign_df.rename(columns={
-            "Beworbene ASIN": "ASIN",
-            "Kampagnen-Name": "Kampagnenname",
-            "Ausgaben": "Werbekosten",
-            "7 Tage, Umsatz gesamt (€)": "Werbeumsatz",
-            "Zugeschriebene Umsatzkosten (ACOS) gesamt ": "ACOS",
-            "Gesamte Rentabilität der Anzeigenkosten (ROAS)": "ROAS"
-        }, inplace=True)
-
-        def parse_euro(val):
-            if isinstance(val, str):
-                return float(val.replace("€", "").replace(",", ".").strip()) if val.strip() != "" else 0.0
-            return val
-
-        campaign_df["Werbekosten"] = campaign_df["Werbekosten"].apply(parse_euro)
-        campaign_df["Werbeumsatz"] = campaign_df["Werbeumsatz"].apply(parse_euro)
-        campaign_df["ACOS"] = campaign_df["ACOS"].astype(str).str.replace("%", "").str.replace(",", ".").astype(float)
-        campaign_df["ROAS"] = pd.to_numeric(campaign_df["ROAS"], errors="coerce")
-
-        grouped = campaign_df.groupby("ASIN").agg({
-            "Werbekosten": "sum",
-            "Werbeumsatz": "sum",
-            "ACOS": "mean",
-            "ROAS": "mean",
-            "Kampagnenname": lambda x: ", ".join(x.unique())
-        }).reset_index()
-
-        catalog = business_df.merge(grouped, on="ASIN", how="left")
-        catalog["Ist beworben"] = catalog["Kampagnenname"].notna().map({True: "✅", False: "❌"})
-
-        filtered = apply_filters(catalog, "Werbe-ASINs")
-        st.dataframe(filtered)
-
-    except Exception as e:
-        st.error(f"Fehler beim Erstellen der Werbe-Übersicht: {e}")
