@@ -169,3 +169,35 @@ else:
     with tab4:
         st.subheader("🔁 Monatsvergleich")
         st.markdown("🧪 Funktion für Monatsvergleichs-Export kann hier integriert werden.")
+
+
+
+    # === 🟪 Tab: Marge & Break-Even-ACOS ===
+    margin_tab = st.tabs(["📉 Marge & Break-Even-ACOS"])[0]
+
+    with margin_tab:
+        st.subheader("📉 Margenkontrolle & Rentabilität")
+
+        price_file = st.file_uploader("📥 Einkaufspreise hochladen (.csv, Spalten: ASIN,Einkaufspreis)", type="csv")
+        if price_file:
+            df_preise = pd.read_csv(price_file)
+            df_margin = df_combined.merge(df_preise, on="ASIN", how="left")
+
+            df_margin["Amazon Gebühren (€)"] = df_margin["Umsatz (€)"] * 0.15 + 2
+            df_margin["Netto-Marge (€)"] = df_margin["Umsatz (€)"] - df_margin["Amazon Gebühren (€)"] - df_margin["Einkaufspreis"]
+            df_margin["Break-Even-ACOS (%)"] = (df_margin["Netto-Marge (€)"] / df_margin["Umsatz (€)"]) * 100
+            df_margin["ACOS (%)"] = df_margin["ACOS (%)"].fillna(0)
+
+            def bewertung(row):
+                if pd.isna(row["Einkaufspreis"]):
+                    return "⚠️ Kein EK hinterlegt"
+                if row["ACOS (%)"] > row["Break-Even-ACOS (%)"]:
+                    return "🔴 Unprofitabel"
+                else:
+                    return "🟢 OK"
+
+            df_margin["Rentabilität"] = df_margin.apply(bewertung, axis=1)
+
+            st.dataframe(df_margin[["ASIN", "Umsatz (€)", "Einkaufspreis", "Netto-Marge (€)", "ACOS (%)", "Break-Even-ACOS (%)", "Rentabilität"]])
+        else:
+            st.info("Bitte CSV mit ASIN & Einkaufspreis hochladen.")
