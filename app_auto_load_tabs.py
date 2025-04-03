@@ -217,3 +217,35 @@ else:
             (df_combined["ACOS (%)"] > 50) | (df_combined["Umsatz (€)"] < 20)
         ].sort_values(["ACOS (%)", "Umsatz (€)"], ascending=[False, True]).head(10)
         st.dataframe(df_flop[["ASIN", "Kampagnenname", "Umsatz (€)", "ACOS (%)", "ROAS"]])
+
+
+
+    # === 🟪 Tab: SEO-Check – Keyword-Coverage ===
+    seo_tab = st.tabs(["🔎 SEO-Check"])[0]
+
+    with seo_tab:
+        st.subheader("🔍 Keyword-Abdeckung im Listing & in Kampagnen")
+
+        keywords = df_keywords_processed["Keyword"].dropna().unique()
+        kampagnen_content = df_campaigns["Kampagnenname"].astype(str).str.lower().str.cat(sep=" ")
+        listing_content = df_business["Produktname"].astype(str).str.lower().str.cat(sep=" ")
+
+        result = []
+        for kw in keywords:
+            kw_lc = kw.lower()
+            in_listing = "✅" if kw_lc in listing_content else "❌"
+            in_kampagne = "✅" if kw_lc in kampagnen_content else "❌"
+
+            if in_listing == "✅" and in_kampagne == "✅":
+                status = "🟢 Abgedeckt"
+            elif in_listing == "❌" and in_kampagne == "✅":
+                status = "🔴 Im Listing fehlt"
+            elif in_listing == "✅" and in_kampagne == "❌":
+                status = "🟠 Nicht beworben"
+            else:
+                status = "⚫ Nicht genutzt"
+
+            result.append({"Keyword": kw, "Im Listing": in_listing, "In Kampagne": in_kampagne, "Status": status})
+
+        df_seo = pd.DataFrame(result)
+        st.dataframe(df_seo)
